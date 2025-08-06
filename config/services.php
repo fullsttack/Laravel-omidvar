@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'kavehnegar' => [
+        'api_key' => env('KAVEHNEGAR_API_KEY'),
+        'sender' => env('KAVEHNEGAR_SENDER'),
+    ],
+
 ];

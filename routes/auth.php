@@ -19,7 +19,13 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('send-code', [AuthenticatedSessionController::class, 'sendCode'])
+        ->name('mobile.send-code')
+        ->middleware('throttle:3,1');
+
+    Route::post('verify-code', [AuthenticatedSessionController::class, 'verifyCode'])
+        ->name('mobile.verify-code')
+        ->middleware('throttle:5,1');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
