@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { type SharedData } from '@/types';
@@ -99,7 +98,7 @@ export default function SiteHeader() {
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <Link 
+                                                    <Link
                                                         href={route('login')}
                                                         className="flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
                                                         onClick={() => setIsMobileMenuOpen(false)}
@@ -202,27 +201,27 @@ export default function SiteHeader() {
                             <div className="flex items-center gap-3">
                                 {auth.user ? (
                                     <div className="flex items-center gap-3">
-                                        <Button variant="ghost" size="sm" className="flex items-center gap-2 hover:bg-gray-100 rounded-xl">
-                                            <Heart className="h-4 w-4 text-gray-600" />
-                                            <span className="hidden lg:inline text-gray-700">علاقه‌مندی‌ها</span>
-                                        </Button>
-
-                                        <Button variant="ghost" size="sm" className="flex items-center gap-2 relative hover:bg-gray-100 rounded-xl">
-                                            <ShoppingCart className="h-4 w-4 text-gray-600" />
-                                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                                                3
+                                        <Button variant="ghost" className="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50 relative">
+                                            <Bell className="text-gray-600 h-4 w-4" />
+                                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                                                2
                                             </span>
-                                            <span className="hidden lg:inline text-gray-700">سبد خرید</span>
                                         </Button>
 
-                                        <Separator orientation="vertical" className="h-6 bg-gray-300" />
-
-                                        <Button asChild variant="outline" className="border-gray-300 hover:bg-gray-50 rounded-xl">
-                                            <Link href={route('dashboard')} className="flex items-center gap-2">
-                                                <User className="h-4 w-4 text-gray-600" />
-                                                <span className="text-gray-700">داشبورد</span>
-                                            </Link>
+                                        <Button variant="ghost" className="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50">
+                                            <Heart className="text-gray-600 h-4 w-4" />
                                         </Button>
+
+                                        <Button variant="ghost" className="w-10 h-10 rounded-xl border border-gray-200 hover:bg-gray-50">
+                                            <ShoppingBag className="text-gray-600 h-4 w-4" />
+                                        </Button>
+
+
+                                        <Link href={route('dashboard')} >
+                                            <Button variant="default" className="bg-green hover:bg-green-800 w-10 h-10 rounded-xl border border-gray-200  cursor-pointer">
+                                                <User className=" text-white h-4 w-4" />
+                                            </Button>
+                                        </Link>
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-3">
@@ -241,11 +240,11 @@ export default function SiteHeader() {
                                             <ShoppingBag className="text-gray-600 h-4 w-4" />
                                         </Button>
 
-                                        <Separator orientation="vertical" className="h-6 bg-gray-300" />
-                                        
-                                        <Link href={route('login')} className="flex items-center gap-2 px-4 py-2 text-sm rounded-xl bg-green-600 hover:bg-green-700 text-white transition-colors font-medium">
-                                            <User className="h-4 w-4" />
-                                            <span>ورود / ثبت نام</span>
+
+                                        <Link href={route('login')} >
+                                            <Button variant="default" className="bg-green hover:bg-green-800 w-10 h-10 rounded-xl border border-gray-200  cursor-pointer">
+                                                <User className=" text-white h-4 w-4" />
+                                            </Button>
                                         </Link>
                                     </div>
                                 )}
