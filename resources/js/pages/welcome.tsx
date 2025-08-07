@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import SiteHeader from '@/components/site-header';
+import HeroBanners from '@/components/hero-banners';
 
 export default function Welcome() {
 
@@ -8,12 +9,10 @@ export default function Welcome() {
             <Head title="فروشگاه اُمیدوار" />
             <div className="min-h-screen bg-background">
                 <SiteHeader />
+                <HeroBanners />
 
                 <main className="container mx-auto py-12 px-4">
-                    <h1 className="text-3xl font-bold text-center">خوش آمدید به فروشگاه اُمیدوار</h1>
-                    <p className="text-center text-gray-600 mt-4">
-                        بهترین محصولات خشکبار، برنج و آجیل را از ما بخرید
-                    </p>
+                    {/* Additional content can be added here */}
                 </main>
             </div>
         </>
