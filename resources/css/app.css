@@ -148,3 +148,54 @@ body {
         @apply bg-background text-foreground;
     }
 }
+
+
+[data-sonner-toaster] {
+    font-family: 'IRANYekan', system-ui, sans-serif !important;
+  }
+  
+  [data-sonner-toast] {
+    font-family: 'IRANYekan', system-ui, sans-serif !important;
+    direction: rtl !important;
+  }
+  
+  [data-sonner-toast] [data-description] {
+    font-family: 'IRANYekan', system-ui, sans-serif !important;
+  }
+  
+  [data-sonner-toast] [data-title] {
+    font-family: 'IRANYekan', system-ui, sans-serif !important;
+  }
+
+  /* Success toast - Green background */
+  [data-sonner-toast][data-type="success"] {
+    background: #10b981 !important;
+    color: white !important;
+    border: 1px solid #059669 !important;
+  }
+
+  [data-sonner-toast][data-type="success"] [data-icon] {
+    color: white !important;
+  }
+
+  /* Error toast - Red background */
+  [data-sonner-toast][data-type="error"] {
+    background: #ef4444 !important;
+    color: white !important;
+    border: 1px solid #dc2626 !important;
+  }
+
+  [data-sonner-toast][data-type="error"] [data-icon] {
+    color: white !important;
+  }
+
+  /* Info toast - Blue background */
+  [data-sonner-toast][data-type="info"] {
+    background: #3b82f6 !important;
+    color: white !important;
+    border: 1px solid #2563eb !important;
+  }
+
+  [data-sonner-toast][data-type="info"] [data-icon] {
+    color: white !important;
+  }

@@ -1,8 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState, useEffect, useRef } from 'react';
 import { Undo2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
     status?: string;
@@ -10,15 +16,30 @@ interface Props {
     mobile?: string;
 }
 
-export default function MobileAuth({ status, step: initialStep, mobile: initialMobile }: Props) {
+export default function MobileAuth({ step: initialStep, mobile: initialMobile }: Props) {
     const [step, setStep] = useState<'mobile' | 'code'>(initialStep || 'mobile');
     const [mobile, setMobile] = useState(initialMobile || '');
     const [countdown, setCountdown] = useState(0);
+    const otpRef = useRef<HTMLDivElement>(null);
 
-    const { data, setData, post, processing, errors, clearErrors } = useForm({
+    const { data, setData, post, processing, clearErrors } = useForm({
         mobile: '',
         code: '',
     });
+
+    // Auto-focus OTP input when step changes to 'code'
+    useEffect(() => {
+        if (step === 'code') {
+            setTimeout(() => {
+                if (otpRef.current) {
+                    const firstInput = otpRef.current.querySelector('input');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                }
+            }, 100);
+        }
+    }, [step]);
 
     const submitMobile: FormEventHandler = (e) => {
         e.preventDefault();
@@ -31,6 +52,23 @@ export default function MobileAuth({ status, step: initialStep, mobile: initialM
                     setCountdown(300); // 5 minutes
                     startCountdown();
                     clearErrors();
+                    toast.success('کد تایید ارسال شد');
+                    // Focus on OTP input after a short delay
+                    setTimeout(() => {
+                        if (otpRef.current) {
+                            const firstInput = otpRef.current.querySelector('input');
+                            if (firstInput) {
+                                firstInput.focus();
+                            }
+                        }
+                    }, 100);
+                }
+            },
+            onError: (errors) => {
+                if (errors.mobile) {
+                    toast.error(errors.mobile);
+                } else {
+                    toast.error('خطا در ارسال کد تایید');
                 }
             }
         });
@@ -40,7 +78,20 @@ export default function MobileAuth({ status, step: initialStep, mobile: initialM
         e.preventDefault();
 
         setData('mobile', mobile);
-        post(route('mobile.verify-code'));
+        post(route('mobile.verify-code'), {
+            onSuccess: () => {
+                toast.success('با موفقیت وارد شدید');
+            },
+            onError: (errors) => {
+                if (errors.code) {
+                    toast.error(errors.code);
+                } else if (errors.mobile) {
+                    toast.error(errors.mobile);
+                } else {
+                    toast.error('خطا در تایید کد');
+                }
+            }
+        });
     };
 
     const startCountdown = () => {
@@ -69,7 +120,11 @@ export default function MobileAuth({ status, step: initialStep, mobile: initialM
                     setCountdown(300);
                     startCountdown();
                     clearErrors();
+                    toast.success('کد تایید مجدد ارسال شد');
                 }
+            },
+            onError: () => {
+                toast.error('خطا در ارسال مجدد کد');
             }
         });
     };
@@ -97,11 +152,6 @@ export default function MobileAuth({ status, step: initialStep, mobile: initialM
                     </p>
                 </div>
 
-                {status && (
-                    <div className="text-sm font-medium text-green-600 text-center mb-4">
-                        {status}
-                    </div>
-                )}
 
                 {/* Form */}
                 <div className="w-full max-w-sm">
@@ -119,16 +169,11 @@ export default function MobileAuth({ status, step: initialStep, mobile: initialM
                                     dir="ltr"
                                     required
                                 />
-                                {errors.mobile && (
-                                    <div className="text-sm text-red-600 mt-2 text-center">
-                                        {errors.mobile}
-                                    </div>
-                                )}
                             </div>
 
                             <Button
                                 type="submit"
-                                className="w-full h-12 cursor-pointer bg-green hover:bg-green-700 text-white rounded-full text-base font-semibold "
+                                className="w-full h-12 cursor-pointer bg-green hover:bg-green-700 text-white rounded-full text-base font-semibold"
                                 disabled={processing}
                             >
                                 {processing ? 'در حال ارسال...' : 'ورود'}
@@ -136,23 +181,24 @@ export default function MobileAuth({ status, step: initialStep, mobile: initialM
                         </form>
                     ) : (
                         <form onSubmit={submitCode} className="space-y-6">
-                            <div>
-                                <Input
-                                    id="code"
-                                    type="text"
+                            <div dir="ltr" className="flex justify-center" ref={otpRef}>
+                                <InputOTP 
+                                    maxLength={6} 
                                     value={data.code}
-                                    className="w-full h-12 text-center text-2xl tracking-wider rounded-full border-gray-300 bg-white"
-                                    onChange={(e) => setData('code', e.target.value)}
-                                    placeholder="● ● ● ● ● ●"
-                                    maxLength={6}
-                                    autoComplete="one-time-code"
-                                    required
-                                />
-                                {errors.code && (
-                                    <div className="text-sm text-red-600 mt-2 text-center">
-                                        {errors.code}
-                                    </div>
-                                )}
+                                    onChange={(value) => setData('code', value)}
+                                >
+                                    <InputOTPGroup>
+                                        <InputOTPSlot index={0} />
+                                        <InputOTPSlot index={1} />
+                                        <InputOTPSlot index={2} />
+                                    </InputOTPGroup>
+                                    
+                                    <InputOTPGroup>
+                                        <InputOTPSlot index={3} />
+                                        <InputOTPSlot index={4} />
+                                        <InputOTPSlot index={5} />
+                                    </InputOTPGroup>
+                                </InputOTP>
                             </div>
 
                             <Button
