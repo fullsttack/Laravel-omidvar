@@ -35,29 +35,13 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
+        if ($request->user()->isDirty('mobile')) {
+            $request->user()->mobile_verified_at = null;
+        }
+
         $request->user()->save();
 
         return to_route('profile.edit');
     }
 
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/');
-    }
 }

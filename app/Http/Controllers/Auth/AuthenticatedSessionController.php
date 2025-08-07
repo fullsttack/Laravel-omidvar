@@ -91,17 +91,26 @@ class AuthenticatedSessionController extends Controller
         $user = User::where('mobile', $mobile)->first();
 
         if ($user) {
-            // Update mobile verification timestamp
-            $user->update(['mobile_verified_at' => Carbon::now()]);
+            // Update mobile verification timestamp and activate if not active
+            $updates = ['mobile_verified_at' => Carbon::now()];
+            if ($user->activation == 0) {
+                $updates['activation'] = 1;
+                $updates['activation_date'] = Carbon::now();
+            }
+            $user->update($updates);
             
             // Login existing user
             Auth::login($user);
         } else {
-            // Register new user
+            // Register new user with activation=1
             $user = User::create([
-                'name' => 'کاربر ' . substr($mobile, -4),
+                'name' => 'کاربر جدید',
                 'mobile' => $mobile,
                 'mobile_verified_at' => Carbon::now(),
+                'activation' => 1,
+                'activation_date' => Carbon::now(),
+                'user_type' => 0,
+                'status' => 0,
                 'password' => Hash::make(str()->random(32))
             ]);
             
