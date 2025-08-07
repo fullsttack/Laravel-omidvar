@@ -52,8 +52,8 @@ body {
     --radius-sm: calc(var(--radius) - 4px);
 
     --color-green: #197d36;
-    --color-orange: #FFE9D1;
-    --color-light: #FF8B00;
+    --color-light: #FFE9D1;
+    --color-orange: #FF8B00;
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);

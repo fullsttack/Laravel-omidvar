@@ -22,7 +22,7 @@ export default function SiteHeader() {
     return (
         <>
             {/* Top Banner */}
-            <div className='flex item-center justify-center w-full p-5 bg-orange '>
+            <div className='flex item-center justify-center w-full p-2 bg-light '>
                 <p className=''>
                     همراه با امیدوار محصولات پر تخفیف را تجربه کنید
                 </p>
@@ -133,6 +133,11 @@ export default function SiteHeader() {
                                     تماس با ما
                                 </Link>
                             </div>
+                        </div>
+
+                        <div className='flex gap-4 items-center'>
+                            <p className='text-xs text-gray-500'>هفت روز هفته، 24 ساعت شبانه‌ روز</p>
+                            <p className='text-orange text-sm'>021-445566</p>
                         </div>
                     </div>
                 </div>
