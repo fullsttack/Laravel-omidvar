@@ -37,7 +37,7 @@ export default function SiteHeader() {
         <>
             {/* Top Banner */}
             <div className='flex item-center justify-center w-full p-2 bg-light '>
-                <p className=''>
+                <p className='text-gray-500 text-xs sm:text-sm'>
                     همراه با امیدوار محصولات پر تخفیف را تجربه کنید
                 </p>
             </div>

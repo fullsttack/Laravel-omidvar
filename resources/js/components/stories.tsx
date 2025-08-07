@@ -444,7 +444,7 @@ export default function Stories() {
 
     return (
         <>
-            <div className="py-6 mt-8">
+            <div className="sm:py-6 mt-8">
                 <div className="container mx-auto px-4">
                     <Carousel
                         

@@ -74,10 +74,10 @@ export default function Categories() {
             <div className="container mx-auto px-4">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    <h2 className="text-xl md:text-4xl font-bold text-gray-900 mb-4">
                         دسته‌بندی محصولات
                     </h2>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-xs sm:text-lg text-gray-600 max-w-2xl mx-auto">
                         مجموعه کاملی از بهترین محصولات غذایی و خوراکی با کیفیت درجه یک
                     </p>
                 </div>
@@ -101,7 +101,7 @@ export default function Categories() {
                                 >
                                     {/* Image Container */}
                                     <div className="relative mb-3">
-                                        <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden bg-gradient-to-br from-green-100 to-emerald-100 p-2 group-hover:from-green-200 group-hover:to-emerald-200 transition-all duration-300">
+                                        <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden bg-gradient-to-br from-green-600 to-emerald-100 p-2 group-hover:from-emerald-100 group-hover:to-green-600 transition-all duration-300">
                                             <div className="w-full h-full rounded-full overflow-hidden bg-white shadow-md">
                                                 <img
                                                     src={category.image}
