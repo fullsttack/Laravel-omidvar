@@ -1,8 +1,15 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Tag } from 'lucide-react';
 
 export default function DiscountBanner() {
+    const products = [
+        { id: 1, image: "/images/product/9.webp", discount: "۲۰٪" },
+        { id: 2, image: "/images/product/2.webp", discount: "۳۵٪" },
+        { id: 3, image: "/images/product/1.webp", discount: "۱۵٪" },
+        { id: 4, image: "/images/product/3.webp", discount: "۴۵٪" }
+    ];
+
     return (
         <div className="mt-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-8 text-white relative overflow-hidden">
             {/* Background Pattern */}
@@ -30,44 +37,29 @@ export default function DiscountBanner() {
 
                 <div className="flex justify-center md:justify-end">
                     <div className="relative">
-                        {/* Product Image with Green Glow */}
                         <div className='flex gap-4'>
-                            <div className="w-32 h-32 bg-white/20 rounded-full p-4 backdrop-blur-sm">
-                                <img
-                                    src="/images/product/9.webp"
-                                    alt="محصول ویژه"
-                                    className="w-full h-full object-cover rounded-full"
-                                />
-                            </div>
+                            {products.map((product) => (
+                                <div key={product.id} className="relative">
+                                    {/* Discount Badge */}
+                                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 z-10">
+                                        <Tag className="h-3 w-3" />
+                                        {product.discount}
+                                    </div>
 
-                            <div className="w-32 h-32 bg-white/20 rounded-full p-4 backdrop-blur-sm">
-                                <img
-                                    src="/images/product/2.webp"
-                                    alt="محصول ویژه"
-                                    className="w-full h-full object-cover rounded-full"
-                                />
-                            </div>
-
-                            <div className="w-32 h-32 bg-white/20 rounded-full p-4 backdrop-blur-sm">
-                                <img
-                                    src="/images/product/1.webp"
-                                    alt="محصول ویژه"
-                                    className="w-full h-full object-cover rounded-full"
-                                />
-                            </div>
-
-                            <div className="w-32 h-32 bg-white/20 rounded-full p-4 backdrop-blur-sm">
-                                <img
-                                    src="/images/product/3.webp"
-                                    alt="محصول ویژه"
-                                    className="w-full h-full object-cover rounded-full"
-                                />
-                            </div>
+                                    <div className="w-32 h-32 bg-white/20 rounded-full p-4 backdrop-blur-sm">
+                                        <img
+                                            src={product.image}
+                                            alt="محصول ویژه"
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
 
                         {/* Floating Discount Badge */}
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                            ۵۰٪ تخفیف
+                            تا ۵۰٪ تخفیف
                         </div>
                     </div>
                 </div>
