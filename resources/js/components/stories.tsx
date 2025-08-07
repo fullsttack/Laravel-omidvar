@@ -462,7 +462,7 @@ export default function Stories() {
                             {storiesData.map((user) => {
                                 const isViewed = viewedStories.has(user.id);
                                 return (
-                                    <CarouselItem key={user.id} className="pl-1 md:pl-2 basis-1/4 md:basis-1/6 lg:basis-[11%]">
+                                    <CarouselItem key={user.id} className="pl-1 md:pl-2 basis-[30%] md:basis-1/6 lg:basis-[11%]">
                                         <div
                                             className={`cursor-pointer transition-all duration-300 hover:scale-105 text-center ${
                                                 isViewed ? 'opacity-60' : ''
