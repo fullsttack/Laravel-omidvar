@@ -10,7 +10,6 @@ import {
     Apple,
     Cookie,
     Coffee,
-    Grape,
     ChefHat,
     Soup,
     Gift,
