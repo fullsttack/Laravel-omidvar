@@ -1,10 +1,9 @@
 
 import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BellRing, BadgeDollarSign, Wallet, Heart, MapPinned, LayoutGrid, Settings, ShoppingBag, MessageCircle } from 'lucide-react';
+import { BellRing, BadgeDollarSign, Wallet, Heart, MapPinned, LayoutGrid, Settings, ShoppingBag, MessageCircle, LogOut } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -53,9 +52,11 @@ const mainNavItems: NavItem[] = [
         href: '/settings/profile',
         icon: Settings,
     },
-
-
-
+    {
+        title: 'خروج',
+        href: '/logout',
+        icon: LogOut,
+    },
 ];
 
 
@@ -79,9 +80,6 @@ export function AppSidebar() {
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
-                <NavUser />
-            </SidebarFooter>
         </Sidebar>
     );
 }
