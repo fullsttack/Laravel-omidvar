@@ -17,7 +17,7 @@ export default function DiscountBanner() {
 
 
     return (
-        <div className="mt-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-8 text-white relative overflow-hidden">
+        <div className="mt-12 bg-gradient-to-r from-green-500 to-emerald-600 h-72 p-8 text-white relative overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-4 right-8 w-16 h-16 bg-white rounded-full"></div>
@@ -27,7 +27,7 @@ export default function DiscountBanner() {
             </div>
 
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div>
+                <div className='flex flex-col justify-center items-center'>
                     <h3 className="text-2xl font-bold mb-2">پیشنهادات ویژه امیدوار</h3>
                     <p className="text-green-100 mb-4 leading-relaxed">
                         تخفیف‌های استثنایی روی محصولات منتخب تا ۵۰٪
@@ -41,12 +41,12 @@ export default function DiscountBanner() {
                     </Link>
                 </div>
 
-                <div className="flex justify-center md:justify-end">
-                    <div className="relative w-full max-w-lg">
+                <div className="w-full flex justify-center md:justify-end">
+                    <div className="relative w-full">
                         {/* Circular Carousel */}
                         <CircularCarousel 
                             products={products} 
-                            duration={16} 
+                            duration={12} 
                         />
 
 

@@ -2,7 +2,7 @@
 export default function HeroBanners() {
     return (
         <div className="mt-8">
-            <div className="container mx-auto px-4 py-6">
+            <div className="container mx-auto max-w-7xl px-4 py-6">
                 <div className="w-full flex flex-col sm:flex-row gap-4 h-8/12">
                     {/* بنر اصلی */}
                     <div className="w-full sm:w-9/12">

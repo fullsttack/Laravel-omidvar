@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import DiscountBanner from '@/components/discount-banner';
 import Autoplay from 'embla-carousel-autoplay';
 
 interface Category {
@@ -71,7 +70,7 @@ export default function Categories() {
 
     return (
         <div className="py-16 bg-white">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto max-w-7xl  px-4">
                 {/* Header */}
                 <div className="text-center mb-12">
                     <h2 className="text-xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -132,7 +131,6 @@ export default function Categories() {
                     </CarouselContent>
                 </Carousel>
 
-                <DiscountBanner />
             </div>
         </div>
     );

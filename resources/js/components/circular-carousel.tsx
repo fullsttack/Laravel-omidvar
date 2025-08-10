@@ -14,7 +14,7 @@ interface CircularCarouselProps {
 
 export default function CircularCarousel({ products, duration = 20 }: CircularCarouselProps) {
     return (
-        <div className="relative w-80 h-80 mx-auto overflow-visible -mt-32">
+        <div className="relative w-full h-80 mx-auto overflow-visible -mt-24">
 
 
             {Array.from({ length: 12 }, (_, i) => products[i % products.length]).map((product, index) => (

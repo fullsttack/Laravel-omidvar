@@ -445,7 +445,7 @@ export default function Stories() {
     return (
         <>
             <div className="sm:py-6 mt-8">
-                <div className="container mx-auto px-4">
+                <div className="container mx-auto max-w-7xl px-4">
                     <Carousel
                         
                         className="w-full"

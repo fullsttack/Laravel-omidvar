@@ -42,8 +42,8 @@ export default function SiteHeader() {
             </div>
 
             {/* Main Header */}
-            <header className=" top-0 z-50 mt-4">
-                <div className="container mx-auto px-4">
+            <header className="top-0 z-50 mt-4">
+                <div className="container mx-auto max-w-7xl  px-4">
                     <div className="flex items-center justify-between h-16 md:h-20">
                         {/* Mobile Header Layout */}
                         <div className="flex items-center justify-between w-full md:hidden">
@@ -256,7 +256,7 @@ export default function SiteHeader() {
 
             {/* Navigation Menu */}
             <nav className="bg-background">
-                <div className="container mx-auto px-4">
+                <div className="container max-w-7xl  mx-auto px-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-8">
                             <div className="hidden md:block">
