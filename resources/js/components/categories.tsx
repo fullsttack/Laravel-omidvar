@@ -39,7 +39,7 @@ const categories: Category[] = [
     },
     {
         id: '5',
-        name: 'شیرینی و تنقلات',
+        name: 'شیرینی',
         image: '/images/product/5.webp',
         count: 52
     },
@@ -113,7 +113,7 @@ export default function Categories() {
 
                                     {/* Category Info */}
                                     <div className="text-center">
-                                        <h3 className="text-sm font-semibold text-gray-800 mb-1 group-hover:text-green-600 transition-colors leading-tight">
+                                        <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-1 group-hover:text-green-600 transition-colors leading-tight">
                                             {category.name}
                                         </h3>
                                         <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
