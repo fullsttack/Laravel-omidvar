@@ -14,7 +14,7 @@ interface CircularCarouselProps {
 
 export default function CircularCarousel({ products, duration = 20 }: CircularCarouselProps) {
     return (
-        <div className="relative w-full h-80 mx-auto overflow-visible -mt-24">
+        <div className="relative w-full h-96 mx-auto overflow-visible -mt-44">
 
 
             {Array.from({ length: 12 }, (_, i) => products[i % products.length]).map((product, index) => (
@@ -25,9 +25,9 @@ export default function CircularCarousel({ products, duration = 20 }: CircularCa
                         animationDelay: `${(index * duration) / 7}s`,
                         left: '50%',
                         top: '50%',
-                        marginLeft: '-40px',
-                        marginTop: '-40px',
-                        transform: 'rotate(-45deg) translateX(120px) rotate(45deg) scale(0.6)',
+                        marginLeft: '-54px',
+                        marginTop: '-48px',
+                        transform: 'rotate(-45deg) translateX(160px) rotate(45deg) scale(0.6)',
                         opacity: 0
                     }}
                 >
@@ -38,7 +38,7 @@ export default function CircularCarousel({ products, duration = 20 }: CircularCa
                             {product.discount}
                         </div>
 
-                        <div className="w-24 h-24 bg-white/30 rounded-full p-2 backdrop-blur-sm hover:scale-110 transition-all duration-300 group-hover:bg-white/40">
+                        <div className="w-32 h-32 bg-white/30 rounded-full p-2 backdrop-blur-sm hover:scale-110 transition-all duration-300 group-hover:bg-white/40">
                             <img
                                 src={product.image}
                                 alt="محصول ویژه"
@@ -61,39 +61,39 @@ export default function CircularCarousel({ products, duration = 20 }: CircularCa
 
                 @keyframes circular-path {
                     0% {
-                        transform: rotate(-45deg) translateX(120px) rotate(45deg) scale(0.6);
+                        transform: rotate(-45deg) translateX(160px) rotate(45deg) scale(0.6);
                         opacity: 0;
                     }
                     12.5% {
-                        transform: rotate(0deg) translateX(120px) rotate(0deg) scale(0.8);
+                        transform: rotate(0deg) translateX(160px) rotate(0deg) scale(0.8);
                         opacity: 0.7;
                     }
                     25% {
-                        transform: rotate(45deg) translateX(120px) rotate(-45deg) scale(1);
+                        transform: rotate(45deg) translateX(160px) rotate(-45deg) scale(1);
                         opacity: 1;
                     }
                     37.5% {
-                        transform: rotate(90deg) translateX(120px) rotate(-90deg) scale(1);
+                        transform: rotate(90deg) translateX(160px) rotate(-90deg) scale(1);
                         opacity: 1;
                     }
                     50% {
-                        transform: rotate(135deg) translateX(120px) rotate(-135deg) scale(0.8);
+                        transform: rotate(135deg) translateX(160px) rotate(-135deg) scale(0.8);
                         opacity: 0.7;
                     }
                     62.5% {
-                        transform: rotate(180deg) translateX(120px) rotate(-180deg) scale(0.6);
+                        transform: rotate(180deg) translateX(160px) rotate(-180deg) scale(0.6);
                         opacity: 0.4;
                     }
                     75% {
-                        transform: rotate(225deg) translateX(120px) rotate(-225deg) scale(0.4);
+                        transform: rotate(225deg) translateX(160px) rotate(-225deg) scale(0.4);
                         opacity: 0.2;
                     }
                     87.5% {
-                        transform: rotate(270deg) translateX(120px) rotate(-270deg) scale(0.4);
+                        transform: rotate(270deg) translateX(160px) rotate(-270deg) scale(0.4);
                         opacity: 0;
                     }
                     100% {
-                        transform: rotate(315deg) translateX(120px) rotate(-315deg) scale(0.6);
+                        transform: rotate(315deg) translateX(160px) rotate(-315deg) scale(0.6);
                         opacity: 0;
                     }
                 }
