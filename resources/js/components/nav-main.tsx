@@ -1,4 +1,5 @@
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Badge } from '@/components/ui/badge';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
@@ -20,6 +21,11 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                 <Link href={item.href} prefetch>
                                     {item.icon && <item.icon />}
                                     <span>{item.title}</span>
+                                    {item.badge && item.badge > 0 && (
+                                        <Badge variant="destructive" className="ml-auto text-xs px-1.5 py-0.5">
+                                            {item.badge > 99 ? '99+' : item.badge}
+                                        </Badge>
+                                    )}
                                 </Link>
                             )}
                         </SidebarMenuButton>

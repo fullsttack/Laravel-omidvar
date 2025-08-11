@@ -10,7 +10,7 @@ class CommentController extends Controller
 {
     public function index()
     {
-        $comments = Comment::with(['author', 'commentable'])
+        $comments = Comment::with(['author'])
             ->where('author_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
@@ -51,7 +51,7 @@ class CommentController extends Controller
         }
 
         return Inertia::render('panel/Comments/Show', [
-            'comment' => $comment->load(['author', 'replies.author', 'commentable']),
+            'comment' => $comment->load(['author', 'replies.author']),
         ]);
     }
 

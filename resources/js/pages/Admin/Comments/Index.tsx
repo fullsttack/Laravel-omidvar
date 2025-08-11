@@ -1,4 +1,4 @@
-import { Head, Link, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Badge } from "@/components/ui/badge";
@@ -15,28 +15,39 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Comment, PageProps } from "@/types";
-import { router } from "@inertiajs/react";
 import {
   CheckCircle,
   Eye,
-  Filter,
   MessageCircle,
   Search,
   Trash2,
   User,
   XCircle,
   MoreHorizontal,
+  Edit,
+  Clock,
+  AlertCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -49,7 +60,6 @@ interface Props extends PageProps {
         name: string;
         email: string;
       };
-      commentable?: any;
     }>;
     current_page: number;
     last_page: number;
@@ -82,23 +92,16 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Index({ comments, stats, filters }: Props) {
   const [selectedComments, setSelectedComments] = useState<number[]>([]);
-  const [showBulkActions, setShowBulkActions] = useState(false);
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
-  const [statusFilter, setStatusFilter] = useState(filters.status || "all");
-  const [seenFilter, setSeenFilter] = useState(filters.seen || "all");
+  const [activeTab, setActiveTab] = useState(filters.status || "all");
 
   const { data, setData, patch, processing, reset } = useForm({
     body: "",
     approved: false,
     status: true,
   });
-
-  useEffect(() => {
-    setShowBulkActions(selectedComments.length > 0);
-  }, [selectedComments]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -116,12 +119,17 @@ export default function Index({ comments, stats, filters }: Props) {
     }
   };
 
-  const applyFilters = () => {
+  const applyFilters = (status = activeTab, search = searchTerm) => {
     const params: any = {};
     
-    if (searchTerm) params.search = searchTerm;
-    if (statusFilter !== "all") params.status = statusFilter;
-    if (seenFilter !== "all") params.seen = seenFilter;
+    if (search) params.search = search;
+    if (status !== "all") {
+      if (status === "new") {
+        params.seen = "0";
+      } else {
+        params.status = status;
+      }
+    }
 
     router.get(route("admin.comments.index"), params, {
       preserveState: true,
@@ -129,11 +137,9 @@ export default function Index({ comments, stats, filters }: Props) {
     });
   };
 
-  const clearFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("all");
-    setSeenFilter("all");
-    router.get(route("admin.comments.index"));
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    applyFilters(value, searchTerm);
   };
 
   const handleEdit = (comment: Comment) => {
@@ -180,7 +186,10 @@ export default function Index({ comments, stats, filters }: Props) {
   };
 
   const handleBulkAction = (action: string) => {
-    if (selectedComments.length === 0) return;
+    if (selectedComments.length === 0) {
+      toast.error("لطفا حداقل یک کامنت را انتخاب کنید");
+      return;
+    }
 
     router.post(route("admin.comments.bulk-update"), {
       ids: selectedComments,
@@ -196,258 +205,292 @@ export default function Index({ comments, stats, filters }: Props) {
     });
   };
 
+  const toggleApproval = (comment: Comment) => {
+    router.patch(route("admin.comments.update", comment.id), {
+      approved: !comment.approved,
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success(comment.approved ? "تایید کامنت لغو شد" : "کامنت تایید شد");
+      },
+    });
+  };
+
   const getStatusBadge = (comment: Comment) => {
     if (comment.approved) {
-      return <Badge variant="success">تایید شده</Badge>;
+      return <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
+        <CheckCircle className="h-3 w-3 mr-1" />
+        تایید شده
+      </Badge>;
     }
-    return <Badge variant="destructive">در انتظار تایید</Badge>;
+    return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+      <Clock className="h-3 w-3 mr-1" />
+      در انتظار
+    </Badge>;
   };
 
   const getSeenBadge = (comment: Comment) => {
-    if (comment.seen) {
-      return <Badge variant="secondary">مشاهده شده</Badge>;
+    if (!comment.seen) {
+      return <Badge variant="destructive" className="bg-red-100 text-red-800 hover:bg-red-100">
+        <AlertCircle className="h-3 w-3 mr-1" />
+        جدید
+      </Badge>;
     }
-    return <Badge variant="outline">جدید</Badge>;
+    return null;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fa-IR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="مدیریت کامنت‌ها" />
 
-      <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">مدیریت کامنت‌ها</h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">مدیریت کامنت‌ها</h1>
+            <p className="text-muted-foreground">مدیریت و بررسی کامنت‌های کاربران</p>
+          </div>
+          
+          {/* Search */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="جستجو در کامنت‌ها..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && applyFilters(activeTab, searchTerm)}
+                className="pr-8 w-80"
+              />
+            </div>
+            <Button onClick={() => applyFilters(activeTab, searchTerm)}>
+              جستجو
+            </Button>
+          </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">کل کامنت‌ها</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                </div>
-                <MessageCircle className="h-8 w-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">تایید شده</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
-                </div>
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">در انتظار</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.unapproved}</p>
-                </div>
-                <XCircle className="h-8 w-8 text-yellow-600" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">جدید</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.unseen}</p>
-                </div>
-                <Eye className="h-8 w-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="all" className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              همه ({stats.total})
+            </TabsTrigger>
+            <TabsTrigger value="approved" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              تایید شده ({stats.approved})
+            </TabsTrigger>
+            <TabsTrigger value="unapproved" className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              در انتظار ({stats.unapproved})
+            </TabsTrigger>
+            <TabsTrigger value="new" className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              جدید ({stats.unseen})
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="جستجو در کامنت‌ها..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button onClick={applyFilters}>
-                    <Search className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="وضعیت" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">همه</SelectItem>
-                    <SelectItem value="approved">تایید شده</SelectItem>
-                    <SelectItem value="unapproved">در انتظار</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={seenFilter} onValueChange={setSeenFilter}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="مشاهده" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">همه</SelectItem>
-                    <SelectItem value="1">مشاهده شده</SelectItem>
-                    <SelectItem value="0">جدید</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" onClick={clearFilters}>
-                  <Filter className="h-4 w-4" />
-                  پاک کردن
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <TabsContent value={activeTab} className="space-y-4">
+            {/* Bulk Actions */}
+            {selectedComments.length > 0 && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">{selectedComments.length} کامنت انتخاب شده</p>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" onClick={() => handleBulkAction("approve")}>
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        تایید همه
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleBulkAction("disapprove")}>
+                        <XCircle className="h-4 w-4 mr-1" />
+                        رد همه
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleBulkAction("mark_seen")}>
+                        <Eye className="h-4 w-4 mr-1" />
+                        علامت‌گذاری خوانده شده
+                      </Button>
+                      <Separator orientation="vertical" className="h-6" />
+                      <Button size="sm" variant="destructive" onClick={() => handleBulkAction("delete")}>
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        حذف همه
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-        {/* Bulk Actions */}
-        {showBulkActions && (
-          <Card className="mb-6">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm">{selectedComments.length} کامنت انتخاب شده</p>
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleBulkAction("approve")}>
-                    تایید همه
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleBulkAction("disapprove")}>
-                    رد همه
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleBulkAction("mark_seen")}>
-                    علامت‌گذاری به عنوان خوانده شده
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleBulkAction("delete")}>
-                    حذف همه
-                  </Button>
+            {/* Comments Table */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>لیست کامنت‌ها</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={selectedComments.length === comments.data.length && comments.data.length > 0}
+                      onCheckedChange={handleSelectAll}
+                    />
+                    <Label className="text-sm">انتخاب همه</Label>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Comments Table */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>لیست کامنت‌ها</CardTitle>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={selectedComments.length === comments.data.length}
-                  onCheckedChange={handleSelectAll}
-                />
-                <span className="text-sm">انتخاب همه</span>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {comments.data.length === 0 ? (
-              <div className="text-center py-8">
-                <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">کامنتی موجود نیست</h3>
-                <p className="text-muted-foreground">هیچ کامنتی با این فیلتر یافت نشد.</p>
-              </div>
-            ) : (
-              <div className="space-y-0">
-                {comments.data.map((comment, index) => (
-                  <div key={comment.id} className={index !== comments.data.length - 1 ? "border-b" : ""}>
-                    <div className="p-4">
-                      <div className="flex items-start gap-4">
-                        <Checkbox
-                          checked={selectedComments.includes(comment.id)}
-                          onCheckedChange={(checked) => handleSelectComment(comment.id, checked as boolean)}
-                        />
-                        <div className="flex-1 space-y-3">
-                          <div className="flex items-center justify-between">
+              </CardHeader>
+              <CardContent className="p-0">
+                {comments.data.length === 0 ? (
+                  <div className="text-center py-12">
+                    <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">کامنتی موجود نیست</h3>
+                    <p className="text-muted-foreground">هیچ کامنتی با این فیلتر یافت نشد.</p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">انتخاب</TableHead>
+                        <TableHead>کاربر</TableHead>
+                        <TableHead>متن کامنت</TableHead>
+                        <TableHead>وضعیت</TableHead>
+                        <TableHead>تاریخ</TableHead>
+                        <TableHead className="w-32">عملیات</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {comments.data.map((comment) => (
+                        <TableRow key={comment.id} className="group hover:bg-muted/50">
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedComments.includes(comment.id)}
+                              onCheckedChange={(checked) => handleSelectComment(comment.id, checked as boolean)}
+                            />
+                          </TableCell>
+                          <TableCell>
                             <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <User className="h-4 w-4" />
-                                {comment.author.name}
+                              <div className="flex flex-col">
+                                <span className="font-medium">{comment.author.name}</span>
+                                <span className="text-xs text-muted-foreground">{comment.author.email}</span>
                               </div>
-                              <span className="text-sm text-muted-foreground">
-                                {new Date(comment.created_at).toLocaleDateString('fa-IR')}
-                              </span>
                             </div>
-                            <div className="flex items-center gap-2">
+                          </TableCell>
+                          <TableCell>
+                            <div className="max-w-md">
+                              <p className="text-sm line-clamp-2 leading-relaxed">
+                                {comment.body}
+                              </p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {comment.commentable_type}#{comment.commentable_id}
+                                </Badge>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col gap-1">
                               {getStatusBadge(comment)}
                               {getSeenBadge(comment)}
                             </div>
-                          </div>
-                          <p className="text-sm leading-relaxed">{comment.body}</p>
-                          {comment.commentable && (
-                            <p className="text-xs text-muted-foreground">
-                              کامنت برای: {comment.commentable_type}#{comment.commentable_id}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <Link href={route("admin.comments.show", comment.id)}>
-                              <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4" />
-                                مشاهده
+                          </TableCell>
+                          <TableCell>
+                            <time className="text-sm text-muted-foreground">
+                              {formatDate(comment.created_at)}
+                            </time>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleApproval(comment)}
+                                title={comment.approved ? "لغو تایید" : "تایید"}
+                              >
+                                {comment.approved ? (
+                                  <XCircle className="h-4 w-4 text-red-600" />
+                                ) : (
+                                  <CheckCircle className="h-4 w-4 text-green-600" />
+                                )}
                               </Button>
-                            </Link>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(comment)}
-                            >
-                              ویرایش
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDelete(comment.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                              
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>عملیات</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem asChild>
+                                    <Link href={route("admin.comments.show", comment.id)}>
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      مشاهده جزئیات
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEdit(comment)}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    ویرایش
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDelete(comment.id)}
+                                    className="text-destructive focus:text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    حذف
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Pagination */}
+            {comments.last_page > 1 && (
+              <div className="flex items-center justify-center gap-2">
+                {Array.from({ length: comments.last_page }, (_, i) => (
+                  <Button
+                    key={i + 1}
+                    variant={comments.current_page === i + 1 ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const params: any = { page: i + 1 };
+                      if (searchTerm) params.search = searchTerm;
+                      if (activeTab !== "all") {
+                        if (activeTab === "new") {
+                          params.seen = "0";
+                        } else {
+                          params.status = activeTab;
+                        }
+                      }
+                      router.get(route("admin.comments.index"), params);
+                    }}
+                  >
+                    {i + 1}
+                  </Button>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Pagination */}
-        {comments.last_page > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6">
-            {Array.from({ length: comments.last_page }, (_, i) => (
-              <Link
-                key={i + 1}
-                href={route("admin.comments.index", { ...filters, page: i + 1 })}
-                className={`px-3 py-1 rounded ${
-                  comments.current_page === i + 1
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted hover:bg-muted/80"
-                }`}
-              >
-                {i + 1}
-              </Link>
-            ))}
-          </div>
-        )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl">
           <form onSubmit={handleUpdate}>
             <DialogHeader>
               <DialogTitle>ویرایش کامنت</DialogTitle>
@@ -462,25 +505,27 @@ export default function Index({ comments, stats, filters }: Props) {
                   id="body"
                   value={data.body}
                   onChange={(e) => setData("body", e.target.value)}
-                  className="min-h-[100px]"
+                  className="min-h-[120px]"
                   required
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="approved"
-                  checked={data.approved}
-                  onCheckedChange={(checked) => setData("approved", checked)}
-                />
-                <Label htmlFor="approved">تایید شده</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="status"
-                  checked={data.status}
-                  onCheckedChange={(checked) => setData("status", checked)}
-                />
-                <Label htmlFor="status">فعال</Label>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="approved"
+                    checked={data.approved}
+                    onCheckedChange={(checked) => setData("approved", checked)}
+                  />
+                  <Label htmlFor="approved" className="font-medium">تایید شده</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                  <Switch
+                    id="status"
+                    checked={data.status}
+                    onCheckedChange={(checked) => setData("status", checked)}
+                  />
+                  <Label htmlFor="status" className="font-medium">فعال</Label>
+                </div>
               </div>
             </div>
             <DialogFooter>

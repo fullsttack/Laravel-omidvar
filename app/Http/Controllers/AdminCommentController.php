@@ -10,7 +10,7 @@ class AdminCommentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Comment::with(['author', 'commentable']);
+        $query = Comment::with(['author']);
 
         if ($request->has('status')) {
             if ($request->status === 'approved') {
@@ -59,7 +59,7 @@ class AdminCommentController extends Controller
 
     public function show(Comment $comment)
     {
-        $comment->load(['author', 'replies.author', 'commentable', 'parent.author']);
+        $comment->load(['author', 'replies.author', 'parent.author']);
 
         if (!$comment->seen) {
             $comment->update(['seen' => 1]);

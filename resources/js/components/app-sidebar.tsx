@@ -2,7 +2,7 @@
 import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { BellRing, BadgeDollarSign, Wallet, Heart, MapPinned, LayoutGrid, Settings, ShoppingBag, MessageCircle, LogOut } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -67,6 +67,18 @@ const mainNavItems: NavItem[] = [
 
 
 export function AppSidebar() {
+    const { unreadComments } = usePage().props as any;
+
+    const navItemsWithBadges: NavItem[] = mainNavItems.map(item => {
+        if (item.href === '/admin/comments' && unreadComments > 0) {
+            return {
+                ...item,
+                badge: unreadComments,
+            };
+        }
+        return item;
+    });
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -82,7 +94,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItemsWithBadges} />
             </SidebarContent>
 
         </Sidebar>
