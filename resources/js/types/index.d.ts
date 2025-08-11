@@ -50,3 +50,22 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Comment {
+    id: number;
+    body: string;
+    parent_id: number | null;
+    author_id: number;
+    commentable_id: number;
+    commentable_type: string;
+    seen: number;
+    approved: number;
+    status: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at?: string | null;
+    author?: User;
+    parent?: Comment;
+    replies?: Comment[];
+    commentable?: any;
+}

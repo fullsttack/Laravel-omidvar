@@ -9,8 +9,13 @@ import AppLogo from './app-logo';
 const mainNavItems: NavItem[] = [
     {
         title: 'داشبورد',
-        href: '/dashboard',
+        href: '/admin',
         icon: LayoutGrid,
+    },
+    {
+        title: 'کامنت‌ها',
+        href: '/admin/comments',
+        icon: MessageCircle,
     },
     {
         title: 'کیف پول',
@@ -68,7 +73,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href="/admin" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

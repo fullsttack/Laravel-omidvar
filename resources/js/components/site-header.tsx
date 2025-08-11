@@ -217,7 +217,7 @@ export default function SiteHeader() {
                                         </Button>
 
 
-                                        <Link href={route('dashboard')} >
+                                        <Link href={route('panel.profile')} >
                                             <Button variant="default" className="bg-green hover:bg-green-800 w-10 h-10 rounded-xl border border-gray-200  cursor-pointer">
                                                 <User className=" text-white h-4 w-4" />
                                             </Button>
