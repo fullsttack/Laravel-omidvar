@@ -42,8 +42,8 @@ export default function MobileBottomNav() {
         {
             icon: User,
             label: auth.user ? 'حساب من' : 'ورود',
-            href: auth.user ? route('dashboard') : route('login'),
-            active: currentRoute === (auth.user ? route('dashboard') : route('login'))
+            href: auth.user ? route('admin.dashboard') : route('login'),
+            active: currentRoute === (auth.user ? route('admin.dashboard') : route('login'))
         }
     ];
 

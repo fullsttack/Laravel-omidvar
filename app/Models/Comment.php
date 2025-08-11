@@ -25,7 +25,7 @@ class Comment extends Model
 
     protected $casts = [
         'seen' => 'boolean',
-        'approved' => 'boolean',
+        'approved' => 'integer',
         'status' => 'boolean',
     ];
 
@@ -57,6 +57,11 @@ class Comment extends Model
     public function scopeUnapproved($query)
     {
         return $query->where('approved', 0);
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('approved', 2);
     }
 
     public function scopeSeen($query)

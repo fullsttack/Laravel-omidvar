@@ -10,6 +10,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
     >
       <table
         data-slot="table"
+        dir="rtl"
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
       />
@@ -21,6 +22,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
+      dir="rtl"
       className={cn("[&_tr]:border-b", className)}
       {...props}
     />
@@ -31,6 +33,7 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
       data-slot="table-body"
+      dir="rtl"
       className={cn("[&_tr:last-child]:border-0", className)}
       {...props}
     />
@@ -41,6 +44,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
     <tfoot
       data-slot="table-footer"
+      dir="rtl"
       className={cn(
         "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
         className
@@ -54,6 +58,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
       data-slot="table-row"
+      dir="rtl"
       className={cn(
         "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
         className
@@ -67,6 +72,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       data-slot="table-head"
+      dir="rtl"
       className={cn(
         "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
@@ -80,6 +86,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
+      dir="rtl"
       className={cn(
         "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
@@ -96,6 +103,7 @@ function TableCaption({
   return (
     <caption
       data-slot="table-caption"
+      dir="rtl"
       className={cn("text-muted-foreground mt-4 text-sm", className)}
       {...props}
     />

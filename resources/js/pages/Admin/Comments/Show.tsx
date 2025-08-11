@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Comment, PageProps } from "@/types";
+import { Comment } from "@/types";
 import { router } from "@inertiajs/react";
 import {
   ArrowLeft,
@@ -33,18 +33,20 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 
-interface Props extends PageProps {
+interface Props {
   comment: Comment & {
     author: {
       id: number;
       name: string;
       email: string;
+      mobile: string;
     };
     replies?: Array<Comment & {
       author: {
         id: number;
         name: string;
         email: string;
+        mobile: string;
       };
     }>;
     parent?: Comment & {
@@ -52,9 +54,10 @@ interface Props extends PageProps {
         id: number;
         name: string;
         email: string;
+        mobile: string;
       };
     };
-    commentable?: any;
+    commentable?: Record<string, unknown>;
   };
 }
 
@@ -138,7 +141,7 @@ export default function Show({ comment }: Props) {
 
   const getStatusBadge = (commentItem: Comment) => {
     if (commentItem.approved) {
-      return <Badge variant="success" className="gap-1">
+      return <Badge variant="default" className="gap-1 bg-green-100 text-green-800 hover:bg-green-100">
         <CheckCircle className="h-3 w-3" />
         تایید شده
       </Badge>;
@@ -213,7 +216,7 @@ export default function Show({ comment }: Props) {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <User className="h-4 w-4" />
-                    {comment.parent.author.name}
+                    {comment.parent.author.mobile} ({comment.parent.author.name})
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
@@ -246,7 +249,7 @@ export default function Show({ comment }: Props) {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <User className="h-4 w-4" />
-                    {comment.author.name} ({comment.author.email})
+                    {comment.author.mobile} ({comment.author.name})
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
@@ -294,7 +297,7 @@ export default function Show({ comment }: Props) {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <User className="h-4 w-4" />
-                            {reply.author.name} ({reply.author.email})
+                            {reply.author?.mobile} ({reply.author?.name})
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -319,7 +322,7 @@ export default function Show({ comment }: Props) {
                       <div className="bg-muted/30 p-3 rounded-md border-r-4 border-primary">
                         <p className="text-sm leading-relaxed">{reply.body}</p>
                       </div>
-                      {index < comment.replies.length - 1 && <Separator className="my-4" />}
+                      {index < (comment.replies?.length || 0) - 1 && <Separator className="my-4" />}
                     </div>
                   ))}
                 </div>
@@ -417,7 +420,6 @@ export default function Show({ comment }: Props) {
           </form>
         </DialogContent>
       </Dialog>
-      </div>
     </AppLayout>
   );
 }

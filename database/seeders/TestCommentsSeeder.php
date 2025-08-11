@@ -67,6 +67,22 @@ class TestCommentsSeeder extends Seeder
                 'approved' => 0,
                 'seen' => 0,
                 'status' => 1,
+            ],
+            [
+                'body' => 'این کامنت رد شده است - محتوای نامناسب داشته.',
+                'commentable_type' => 'Product',
+                'commentable_id' => 4,
+                'approved' => 2,
+                'seen' => 1,
+                'status' => 1,
+            ],
+            [
+                'body' => 'کامنت spam - این پیام تبلیغاتی بود و رد شد.',
+                'commentable_type' => 'Post',
+                'commentable_id' => 2,
+                'approved' => 2,
+                'seen' => 1,
+                'status' => 1,
             ]
         ];
 
@@ -100,5 +116,8 @@ class TestCommentsSeeder extends Seeder
         $this->command->info('Test comments created successfully!');
         $this->command->info("User: {$user->name} (ID: {$user->id})");
         $this->command->info("Created " . Comment::count() . " comments");
+        $this->command->info("Approved: " . Comment::approved()->count());
+        $this->command->info("Pending: " . Comment::unapproved()->count());
+        $this->command->info("Rejected: " . Comment::rejected()->count());
     }
 }

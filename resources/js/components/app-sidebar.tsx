@@ -3,7 +3,7 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BellRing, BadgeDollarSign, Wallet, Heart, MapPinned, LayoutGrid, Settings, ShoppingBag, MessageCircle, LogOut } from 'lucide-react';
+import { BellRing, BadgeDollarSign, Wallet, Heart, MapPinned, LayoutGrid, Settings, ShoppingBag, MessageCircle, LogOut, Ticket, Tags, Flag } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -18,44 +18,26 @@ const mainNavItems: NavItem[] = [
         icon: MessageCircle,
     },
     {
-        title: 'کیف پول',
-        href: '/wallet',
-        icon: Wallet,
-    },
-    {
-        title: 'سفارش ها',
-        href: '/orders',
-        icon: ShoppingBag,
-    },
-    {
-        title: 'تراکنش ها',
-        href: '/transactions',
-        icon: BadgeDollarSign,
-    },
-    {
-        title: 'لیست شما',
-        href: '/lists',
-        icon: Heart,
-    },
-    {
-        title: 'آدرس ها',
-        href: '/addresses',
-        icon: MapPinned,
-    },
-    {
-        title: 'پیام ها',
-        href: '/notification',
-        icon: BellRing,
-    },
-    {
-        title: 'پشتیبانی',
-        href: '/support',
-        icon: MessageCircle,
-    },
-    {
-        title: 'تنظیمات',
-        href: '/settings/profile',
-        icon: Settings,
+        title: 'تیکت‌ها',
+        href: '/admin/tickets',
+        icon: Ticket,
+        items: [
+            {
+                title: 'همه تیکت‌ها',
+                href: '/admin/tickets',
+                icon: Ticket,
+            },
+            {
+                title: 'دسته‌بندی‌ها',
+                href: '/admin/ticket-categories',
+                icon: Tags,
+            },
+            {
+                title: 'اولویت‌ها',
+                href: '/admin/ticket-priorities',
+                icon: Flag,
+            },
+        ],
     },
     {
         title: 'خروج',
@@ -74,6 +56,22 @@ export function AppSidebar() {
             return {
                 ...item,
                 badge: unreadComments,
+            };
+        }
+        if (item.href === '/admin/tickets' && item.items) {
+            const { unreadTickets } = usePage().props as any;
+            return {
+                ...item,
+                badge: unreadTickets > 0 ? unreadTickets : undefined,
+                items: item.items.map(subItem => {
+                    if (subItem.href === '/admin/tickets' && unreadTickets > 0) {
+                        return {
+                            ...subItem,
+                            badge: unreadTickets,
+                        };
+                    }
+                    return subItem;
+                }),
             };
         }
         return item;

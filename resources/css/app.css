@@ -166,9 +166,10 @@ body {
 
   /* Success toast - Green background */
   [data-sonner-toast][data-type="success"] {
-    background: #197d36 !important;
-    color: white !important;
+    background: #014f17 !important;
+    color: rgb(24, 212, 112) !important;
     border: 1px solid rgb(0, 85, 58) !important;
+    
   }
 
   [data-sonner-toast][data-type="success"] [data-icon] {

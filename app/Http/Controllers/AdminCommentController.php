@@ -17,6 +17,8 @@ class AdminCommentController extends Controller
                 $query->approved();
             } elseif ($request->status === 'unapproved') {
                 $query->unapproved();
+            } elseif ($request->status === 'rejected') {
+                $query->rejected();
             }
         }
 
@@ -34,7 +36,8 @@ class AdminCommentController extends Controller
                 $q->where('body', 'like', "%{$search}%")
                   ->orWhereHas('author', function($authorQuery) use ($search) {
                       $authorQuery->where('name', 'like', "%{$search}%")
-                                  ->orWhere('email', 'like', "%{$search}%");
+                                  ->orWhere('email', 'like', "%{$search}%")
+                                  ->orWhere('mobile', 'like', "%{$search}%");
                   });
             });
         }
@@ -47,6 +50,7 @@ class AdminCommentController extends Controller
             'total' => Comment::count(),
             'approved' => Comment::approved()->count(),
             'unapproved' => Comment::unapproved()->count(),
+            'rejected' => Comment::rejected()->count(),
             'unseen' => Comment::unseen()->count(),
         ];
 
@@ -73,26 +77,21 @@ class AdminCommentController extends Controller
     public function update(Request $request, Comment $comment)
     {
         $request->validate([
-            'approved' => 'sometimes|boolean',
+            'approved' => 'sometimes|integer|in:0,1,2',
             'status' => 'sometimes|boolean',
             'body' => 'sometimes|string|max:2000',
         ]);
 
         $comment->update($request->only(['approved', 'status', 'body']));
 
-        return response()->json([
-            'message' => 'کامنت با موفقیت بروزرسانی شد.',
-            'comment' => $comment->fresh(['author', 'commentable']),
-        ]);
+        return back();
     }
 
     public function destroy(Comment $comment)
     {
         $comment->delete();
 
-        return response()->json([
-            'message' => 'کامنت با موفقیت حذف شد.',
-        ]);
+        return back();
     }
 
     public function bulkUpdate(Request $request)
@@ -100,7 +99,7 @@ class AdminCommentController extends Controller
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'exists:comments,id',
-            'action' => 'required|in:approve,disapprove,delete,mark_seen',
+            'action' => 'required|in:approve,disapprove,reject,delete,mark_seen',
         ]);
 
         $comments = Comment::whereIn('id', $request->ids);
@@ -112,6 +111,9 @@ class AdminCommentController extends Controller
             case 'disapprove':
                 $comments->update(['approved' => 0]);
                 break;
+            case 'reject':
+                $comments->update(['approved' => 2]);
+                break;
             case 'mark_seen':
                 $comments->update(['seen' => 1]);
                 break;
@@ -120,8 +122,6 @@ class AdminCommentController extends Controller
                 break;
         }
 
-        return response()->json([
-            'message' => 'عملیات با موفقیت انجام شد.',
-        ]);
+        return back();
     }
 }

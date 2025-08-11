@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -35,30 +36,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Comment, PageProps } from "@/types";
+import { Comment } from "@/types";
 import {
   CheckCircle,
   Eye,
   MessageCircle,
   Search,
   Trash2,
-  User,
-  XCircle,
   MoreHorizontal,
   Edit,
   Clock,
   AlertCircle,
+  X,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
-interface Props extends PageProps {
+interface Props {
   comments: {
     data: Array<Comment & {
       author: {
         id: number;
         name: string;
         email: string;
+        mobile: string;
       };
     }>;
     current_page: number;
@@ -70,6 +71,7 @@ interface Props extends PageProps {
     total: number;
     approved: number;
     unapproved: number;
+    rejected: number;
     unseen: number;
   };
   filters: {
@@ -96,20 +98,17 @@ export default function Index({ comments, stats, filters }: Props) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
   const [activeTab, setActiveTab] = useState(filters.status || "all");
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   const { data, setData, patch, processing, reset } = useForm({
     body: "",
-    approved: false,
+    approved: 0,
     status: true,
+  } as {
+    body: string;
+    approved: number;
+    status: boolean;
   });
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedComments(comments.data.map(c => c.id));
-    } else {
-      setSelectedComments([]);
-    }
-  };
 
   const handleSelectComment = (commentId: number, checked: boolean) => {
     if (checked) {
@@ -120,7 +119,7 @@ export default function Index({ comments, stats, filters }: Props) {
   };
 
   const applyFilters = (status = activeTab, search = searchTerm) => {
-    const params: any = {};
+    const params: Record<string, string> = {};
     
     if (search) params.search = search;
     if (status !== "all") {
@@ -146,7 +145,7 @@ export default function Index({ comments, stats, filters }: Props) {
     setEditingComment(comment);
     setData({
       body: comment.body,
-      approved: Boolean(comment.approved),
+      approved: comment.approved,
       status: Boolean(comment.status),
     });
     setIsEditDialogOpen(true);
@@ -158,13 +157,17 @@ export default function Index({ comments, stats, filters }: Props) {
 
     patch(route("admin.comments.update", editingComment.id), {
       onSuccess: () => {
-        toast.success("کامنت با موفقیت بروزرسانی شد");
+        toast.success("عملیات موفق", {
+          description: "کامنت با موفقیت بروزرسانی شد"
+        });
         setIsEditDialogOpen(false);
         reset();
         setEditingComment(null);
       },
       onError: () => {
-        toast.error("خطا در بروزرسانی کامنت");
+        toast.error("عملیات ناموفق", {
+          description: "خطا در بروزرسانی کامنت"
+        });
       },
     });
   };
@@ -176,18 +179,24 @@ export default function Index({ comments, stats, filters }: Props) {
 
     router.delete(route("admin.comments.destroy", commentId), {
       onSuccess: () => {
-        toast.success("کامنت با موفقیت حذف شد");
+        toast.success("عملیات موفق", {
+          description: "کامنت با موفقیت حذف شد"
+        });
         setSelectedComments(prev => prev.filter(id => id !== commentId));
       },
       onError: () => {
-        toast.error("خطا در حذف کامنت");
+        toast.error("عملیات ناموفق", {
+          description: "خطا در حذف کامنت"
+        });
       },
     });
   };
 
   const handleBulkAction = (action: string) => {
     if (selectedComments.length === 0) {
-      toast.error("لطفا حداقل یک کامنت را انتخاب کنید");
+      toast.error("انتخاب نشده", {
+        description: "لطفا حداقل یک کامنت را انتخاب کنید"
+      });
       return;
     }
 
@@ -196,31 +205,58 @@ export default function Index({ comments, stats, filters }: Props) {
       action: action,
     }, {
       onSuccess: () => {
-        toast.success("عملیات با موفقیت انجام شد");
+        toast.success("عملیات موفق", {
+          description: "عملیات روی کامنت‌های انتخاب شده با موفقیت انجام شد"
+        });
         setSelectedComments([]);
       },
       onError: () => {
-        toast.error("خطا در انجام عملیات");
+        toast.error("عملیات ناموفق", {
+          description: "خطا در انجام عملیات"
+        });
       },
     });
   };
 
-  const toggleApproval = (comment: Comment) => {
+  const toggleApproval = (comment: Comment, newStatus: number) => {
+    const actionKey = `toggle-${comment.id}`;
+    setLoadingAction(actionKey);
+    
     router.patch(route("admin.comments.update", comment.id), {
-      approved: !comment.approved,
+      approved: newStatus,
     }, {
       preserveScroll: true,
       onSuccess: () => {
-        toast.success(comment.approved ? "تایید کامنت لغو شد" : "کامنت تایید شد");
+        const statusMessages = {
+          0: { title: "عملیات موفق", description: "کامنت به حالت در انتظار تغییر کرد" },
+          1: { title: "عملیات موفق", description: "کامنت با موفقیت تایید شد" }, 
+          2: { title: "عملیات موفق", description: "کامنت با موفقیت رد شد" }
+        };
+        const message = statusMessages[newStatus as keyof typeof statusMessages];
+        toast.success(message.title, {
+          description: message.description
+        });
+        setLoadingAction(null);
+      },
+      onError: () => {
+        toast.error("عملیات ناموفق", {
+          description: "خطا در تغییر وضعیت کامنت"
+        });
+        setLoadingAction(null);
       },
     });
   };
 
   const getStatusBadge = (comment: Comment) => {
-    if (comment.approved) {
+    if (comment.approved === 1) {
       return <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
         <CheckCircle className="h-3 w-3 mr-1" />
         تایید شده
+      </Badge>;
+    } else if (comment.approved === 2) {
+      return <Badge variant="destructive" className="bg-red-100 text-red-800 hover:bg-red-100">
+        <X className="h-3 w-3 mr-1" />
+        رد شده
       </Badge>;
     }
     return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
@@ -253,13 +289,10 @@ export default function Index({ comments, stats, filters }: Props) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="مدیریت کامنت‌ها" />
 
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">مدیریت کامنت‌ها</h1>
-            <p className="text-muted-foreground">مدیریت و بررسی کامنت‌های کاربران</p>
-          </div>
+          
           
           {/* Search */}
           <div className="flex items-center gap-2">
@@ -281,7 +314,7 @@ export default function Index({ comments, stats, filters }: Props) {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="all" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               همه ({stats.total})
@@ -293,6 +326,10 @@ export default function Index({ comments, stats, filters }: Props) {
             <TabsTrigger value="unapproved" className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               در انتظار ({stats.unapproved})
+            </TabsTrigger>
+            <TabsTrigger value="rejected" className="flex items-center gap-2">
+              <X className="h-4 w-4" />
+              رد شده ({stats.rejected})
             </TabsTrigger>
             <TabsTrigger value="new" className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4" />
@@ -313,7 +350,11 @@ export default function Index({ comments, stats, filters }: Props) {
                         تایید همه
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => handleBulkAction("disapprove")}>
-                        <XCircle className="h-4 w-4 mr-1" />
+                        <Clock className="h-4 w-4 mr-1" />
+                        در انتظار
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleBulkAction("reject")}>
+                        <X className="h-4 w-4 mr-1" />
                         رد همه
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => handleBulkAction("mark_seen")}>
@@ -333,19 +374,8 @@ export default function Index({ comments, stats, filters }: Props) {
 
             {/* Comments Table */}
             <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>لیست کامنت‌ها</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={selectedComments.length === comments.data.length && comments.data.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                    <Label className="text-sm">انتخاب همه</Label>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
+              
+              <CardContent className="p-0 overflow-x-auto">
                 {comments.data.length === 0 ? (
                   <div className="text-center py-12">
                     <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -353,38 +383,42 @@ export default function Index({ comments, stats, filters }: Props) {
                     <p className="text-muted-foreground">هیچ کامنتی با این فیلتر یافت نشد.</p>
                   </div>
                 ) : (
-                  <Table>
+                  <div className="w-full" dir="rtl">
+                    <Table className="w-full table-fixed">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-12">انتخاب</TableHead>
-                        <TableHead>کاربر</TableHead>
-                        <TableHead>متن کامنت</TableHead>
-                        <TableHead>وضعیت</TableHead>
-                        <TableHead>تاریخ</TableHead>
-                        <TableHead className="w-32">عملیات</TableHead>
+                        <TableHead className="w-16 text-center">#</TableHead>
+                        <TableHead className="text-right">کاربر</TableHead>
+                        <TableHead className="text-right">متن کامنت</TableHead>
+                        <TableHead className="text-right">وضعیت</TableHead>
+                        <TableHead className="text-right">تاریخ</TableHead>
+                        <TableHead className="w-32 text-right">عملیات</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {comments.data.map((comment) => (
                         <TableRow key={comment.id} className="group hover:bg-muted/50">
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedComments.includes(comment.id)}
-                              onCheckedChange={(checked) => handleSelectComment(comment.id, checked as boolean)}
-                            />
+                          <TableCell className="text-center">
+                            <div className="flex justify-center">
+                              <Checkbox
+                                checked={selectedComments.includes(comment.id)}
+                                onCheckedChange={(checked) => handleSelectComment(comment.id, checked as boolean)}
+                              />
+                            </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
+                          <TableCell className="text-right">
+                            <div className="flex items-start gap-2">
                               <div className="flex flex-col">
-                                <span className="font-medium">{comment.author.name}</span>
-                                <span className="text-xs text-muted-foreground">{comment.author.email}</span>
+                                <span className="font-medium">{comment.author.mobile}</span>
+                                <span className="text-xs text-muted-foreground">{comment.author.name}</span>
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-right">
                             <div className="max-w-md">
                               <p className="text-sm line-clamp-2 leading-relaxed">
-                                {comment.body}
+                                {comment.body.split(' ').slice(0, 4).join(' ')}
+                                {comment.body.split(' ').length > 4 ? '...' : ''}
                               </p>
                               <div className="flex items-center gap-2 mt-2">
                                 <Badge variant="outline" className="text-xs">
@@ -393,31 +427,54 @@ export default function Index({ comments, stats, filters }: Props) {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col gap-1">
+                          <TableCell className="text-right">
+                            <div className="flex flex-col gap-1 items-start">
                               {getStatusBadge(comment)}
                               {getSeenBadge(comment)}
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="text-right">
                             <time className="text-sm text-muted-foreground">
                               {formatDate(comment.created_at)}
                             </time>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => toggleApproval(comment)}
-                                title={comment.approved ? "لغو تایید" : "تایید"}
-                              >
-                                {comment.approved ? (
-                                  <XCircle className="h-4 w-4 text-red-600" />
-                                ) : (
-                                  <CheckCircle className="h-4 w-4 text-green-600" />
-                                )}
-                              </Button>
+                          <TableCell className="text-right">
+                            <div className="flex items-center gap-1 justify-start">
+                              {loadingAction === `toggle-${comment.id}` ? (
+                                <Button variant="ghost" size="sm" disabled>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                                </Button>
+                              ) : (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      {comment.approved === 1 ? (
+                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                      ) : comment.approved === 2 ? (
+                                        <X className="h-4 w-4 text-red-600" />
+                                      ) : (
+                                        <Clock className="h-4 w-4 text-yellow-600" />
+                                      )}
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>تغییر وضعیت</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => toggleApproval(comment, 1)}>
+                                      <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                                      تایید
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => toggleApproval(comment, 0)}>
+                                      <Clock className="h-4 w-4 mr-2 text-yellow-600" />
+                                      در انتظار
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => toggleApproval(comment, 2)}>
+                                      <X className="h-4 w-4 mr-2 text-red-600" />
+                                      رد کردن
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
                               
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -454,6 +511,7 @@ export default function Index({ comments, stats, filters }: Props) {
                       ))}
                     </TableBody>
                   </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -467,7 +525,7 @@ export default function Index({ comments, stats, filters }: Props) {
                     variant={comments.current_page === i + 1 ? "default" : "outline"}
                     size="sm"
                     onClick={() => {
-                      const params: any = { page: i + 1 };
+                      const params: Record<string, string | number> = { page: i + 1 };
                       if (searchTerm) params.search = searchTerm;
                       if (activeTab !== "all") {
                         if (activeTab === "new") {
@@ -509,22 +567,30 @@ export default function Index({ comments, stats, filters }: Props) {
                   required
                 />
               </div>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <Switch
-                    id="approved"
-                    checked={data.approved}
-                    onCheckedChange={(checked) => setData("approved", checked)}
-                  />
-                  <Label htmlFor="approved" className="font-medium">تایید شده</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="approved">وضعیت تایید</Label>
+                  <Select value={data.approved.toString()} onValueChange={(value) => setData("approved", parseInt(value))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">در انتظار</SelectItem>
+                      <SelectItem value="1">تایید شده</SelectItem>
+                      <SelectItem value="2">رد شده</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <Switch
-                    id="status"
-                    checked={data.status}
-                    onCheckedChange={(checked) => setData("status", checked)}
-                  />
-                  <Label htmlFor="status" className="font-medium">فعال</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="status">وضعیت فعال</Label>
+                  <div className="flex items-center space-x-2 space-x-reverse pt-2">
+                    <Switch
+                      id="status"
+                      checked={data.status}
+                      onCheckedChange={(checked) => setData("status", checked)}
+                    />
+                    <Label htmlFor="status" className="font-medium">فعال</Label>
+                  </div>
                 </div>
               </div>
             </div>

@@ -34,6 +34,7 @@ interface Props extends PageProps {
 export default function Index({ comments }: Props) {
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   const { data, setData, patch, processing, reset } = useForm({
     body: "",
@@ -51,13 +52,17 @@ export default function Index({ comments }: Props) {
 
     patch(route("panel.comments.update", editingComment.id), {
       onSuccess: () => {
-        toast.success("کامنت با موفقیت ویرایش شد");
+        toast.success("عملیات موفق", {
+          description: "کامنت با موفقیت ویرایش شد"
+        });
         setIsEditDialogOpen(false);
         reset();
         setEditingComment(null);
       },
       onError: () => {
-        toast.error("خطا در ویرایش کامنت");
+        toast.error("عملیات ناموفق", {
+          description: "خطا در ویرایش کامنت"
+        });
       },
     });
   };
@@ -67,21 +72,32 @@ export default function Index({ comments }: Props) {
       return;
     }
 
+    const actionKey = `delete-${commentId}`;
+    setLoadingAction(actionKey);
+
     router.delete(route("panel.comments.destroy", commentId), {
       onSuccess: () => {
-        toast.success("کامنت با موفقیت حذف شد");
+        toast.success("عملیات موفق", {
+          description: "کامنت با موفقیت حذف شد"
+        });
+        setLoadingAction(null);
       },
       onError: () => {
-        toast.error("خطا در حذف کامنت");
+        toast.error("عملیات ناموفق", {
+          description: "خطا در حذف کامنت"
+        });
+        setLoadingAction(null);
       },
     });
   };
 
   const getStatusBadge = (comment: Comment) => {
-    if (comment.approved) {
-      return <Badge variant="success">تایید شده</Badge>;
+    if (comment.approved === 1) {
+      return <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">تایید شده</Badge>;
+    } else if (comment.approved === 2) {
+      return <Badge variant="destructive" className="bg-red-100 text-red-800 hover:bg-red-100">رد شده</Badge>;
     }
-    return <Badge variant="destructive">در انتظار تایید</Badge>;
+    return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">در انتظار تایید</Badge>;
   };
 
   return (
@@ -132,13 +148,19 @@ export default function Index({ comments }: Props) {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(comment.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {loadingAction === `delete-${comment.id}` ? (
+                        <Button variant="outline" size="sm" disabled>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(comment.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardHeader>

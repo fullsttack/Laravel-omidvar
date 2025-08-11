@@ -1,15 +1,7 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { Percent, Plus } from 'lucide-react';
-
-interface Product {
-    id: string;
-    name: string;
-    image: string;
-    price: number;
-    originalPrice?: number;
-    discount?: number;
-}
+import { Product } from '@/types/index';
 
 interface ProductCardProps {
     product: Product;
