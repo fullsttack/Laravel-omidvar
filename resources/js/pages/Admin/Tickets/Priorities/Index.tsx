@@ -1,4 +1,4 @@
-import { Head, Link, useForm, router } from "@inertiajs/react";
+import {useForm, router } from "@inertiajs/react";
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -41,7 +40,6 @@ import {
   MoreHorizontal,
   Edit,
   Plus,
-  Flag,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -98,7 +96,7 @@ export default function Index({ priorities, stats, filters }: Props) {
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
   const [activeTab, setActiveTab] = useState(filters.status || "all");
 
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const { setData, post, processing} = useForm({
     ids: [] as number[],
     action: '',
   });
@@ -242,54 +240,17 @@ export default function Index({ priorities, stats, filters }: Props) {
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="مدیریت اولویت‌های تیکت" />
+      
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">مدیریت اولویت‌های تیکت</h1>
+      <div className="w-full container mx-auto max-w-7xl mt-12 space-y-6">
+        <div className="flex items-center justify-end">
+       
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             افزودن اولویت جدید
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Flag className="h-4 w-4 text-muted-foreground" />
-                <div className="mr-2">
-                  <p className="text-sm font-medium text-muted-foreground">کل اولویت‌ها</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <div className="mr-2">
-                  <p className="text-sm font-medium text-muted-foreground">فعال</p>
-                  <p className="text-2xl font-bold text-green-500">{stats.active}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <X className="h-4 w-4 text-red-500" />
-                <div className="mr-2">
-                  <p className="text-sm font-medium text-muted-foreground">غیرفعال</p>
-                  <p className="text-2xl font-bold text-red-500">{stats.inactive}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         <Card>
           <CardContent className="p-6">

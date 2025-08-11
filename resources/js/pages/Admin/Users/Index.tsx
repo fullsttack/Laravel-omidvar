@@ -9,6 +9,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Search, UserPlus, Users, Settings, Eye } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -71,7 +72,7 @@ export default function Index({ users, roles, filters }: Props) {
 
     const handleBulkAction = (action: string, role: string) => {
         if (selectedUsers.length === 0) {
-            alert('لطفا حداقل یک کاربر انتخاب کنید.');
+            toast.error('انتخاب نشده', { description: 'لطفا حداقل یک کاربر انتخاب کنید.' });
             return;
         }
 
@@ -82,6 +83,12 @@ export default function Index({ users, roles, filters }: Props) {
         }, {
             onSuccess: () => {
                 setSelectedUsers([]);
+                toast.success('عملیات موفق', { 
+                    description: `عملیات ${action === 'assign_role' ? 'اختصاص' : 'حذف'} نقش ${role} روی ${selectedUsers.length} کاربر با موفقیت انجام شد` 
+                });
+            },
+            onError: () => {
+                toast.error('عملیات ناموفق', { description: 'خطا در انجام عملیات گروهی' });
             }
         });
     };
@@ -106,7 +113,7 @@ export default function Index({ users, roles, filters }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="مدیریت کاربران" />
             
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 max-w-7xl mx-auto w-full">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
@@ -180,10 +187,10 @@ export default function Index({ users, roles, filters }: Props) {
 
                         {/* جدول */}
                         <div className="border rounded-lg">
-                            <Table>
+                            <Table className="text-right">
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-12">
+                                        <TableHead className="w-12 text-right">
                                             <input
                                                 type="checkbox"
                                                 checked={selectedUsers.length === users.data.length}
@@ -191,12 +198,12 @@ export default function Index({ users, roles, filters }: Props) {
                                                 className="rounded"
                                             />
                                         </TableHead>
-                                        <TableHead>نام</TableHead>
-                                        <TableHead>ایمیل</TableHead>
-                                        <TableHead>موبایل</TableHead>
-                                        <TableHead>نقش‌ها</TableHead>
-                                        <TableHead>تاریخ عضویت</TableHead>
-                                        <TableHead className="text-left">عملیات</TableHead>
+                                        <TableHead className="text-right">نام</TableHead>
+                                        <TableHead className="text-right">ایمیل</TableHead>
+                                        <TableHead className="text-right">موبایل</TableHead>
+                                        <TableHead className="text-right">نقش‌ها</TableHead>
+                                        <TableHead className="text-right">تاریخ عضویت</TableHead>
+                                        <TableHead className="text-right">عملیات</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -228,7 +235,7 @@ export default function Index({ users, roles, filters }: Props) {
                                             <TableCell>
                                                 {new Date(user.created_at).toLocaleDateString('fa-IR')}
                                             </TableCell>
-                                            <TableCell className="text-left">
+                                            <TableCell className="text-right">
                                                 <div className="flex gap-1">
                                                     <Button size="sm" variant="outline" asChild>
                                                         <Link href={route('admin.users.show', user.id)}>

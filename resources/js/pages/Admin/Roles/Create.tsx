@@ -7,6 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Shield, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -40,7 +41,14 @@ export default function Create({ permissions }: Props) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.roles.store'));
+        post(route('admin.roles.store'), {
+            onSuccess: () => {
+                toast.success('عملیات موفق', { description: `نقش "${data.name}" با موفقیت ایجاد شد` });
+            },
+            onError: () => {
+                toast.error('عملیات ناموفق', { description: 'خطا در ایجاد نقش' });
+            }
+        });
     };
 
     const togglePermission = (permissionName: string) => {
@@ -55,8 +63,8 @@ export default function Create({ permissions }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="ایجاد نقش جدید" />
             
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <Card className="max-w-4xl">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 max-w-7xl mx-auto w-full">
+                <Card className="max-w-4xl mx-auto">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Shield className="h-5 w-5" />

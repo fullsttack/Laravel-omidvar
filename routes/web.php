@@ -126,7 +126,7 @@ Route::get('/products/{id}', function ($id) {
 })->name('product.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/', function () {
             return Inertia::render('Admin/Dashboard');
         })->name('dashboard');

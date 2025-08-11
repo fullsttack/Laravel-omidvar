@@ -99,6 +99,8 @@ class AuthenticatedSessionController extends Controller
             }
             $user->update($updates);
             
+            // No need to assign role for regular users
+            
             // Login existing user
             Auth::login($user);
         } else {
@@ -114,12 +116,19 @@ class AuthenticatedSessionController extends Controller
                 'password' => Hash::make(str()->random(32))
             ]);
             
+            // No need to assign role for new users
+            
             Auth::login($user);
         }
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        // Check if user has admin role to redirect appropriately
+        if ($user->hasRole('admin')) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        } else {
+            return redirect()->intended(route('panel.index', absolute: false));
+        }
     }
 
     /**

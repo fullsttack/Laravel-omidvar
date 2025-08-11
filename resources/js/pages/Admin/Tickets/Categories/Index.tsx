@@ -1,4 +1,4 @@
-import { Head, Link, useForm, router } from "@inertiajs/react";
+import { Head, useForm, router } from "@inertiajs/react";
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -41,7 +40,6 @@ import {
   MoreHorizontal,
   Edit,
   Plus,
-  Tags,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -90,7 +88,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ];
 
-export default function Index({ categories, stats, filters }: Props) {
+export default function Index({ categories, filters }: Props) {
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [editingCategory, setEditingCategory] = useState<CategoryData | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -98,7 +96,7 @@ export default function Index({ categories, stats, filters }: Props) {
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
   const [activeTab, setActiveTab] = useState(filters.status || "all");
 
-  const { data, setData, post, processing, errors, reset } = useForm({
+  const { setData, post, processing} = useForm({
     ids: [] as number[],
     action: '',
   });
@@ -244,9 +242,8 @@ export default function Index({ categories, stats, filters }: Props) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="مدیریت دسته‌بندی‌های تیکت" />
 
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">مدیریت دسته‌بندی‌های تیکت</h1>
+      <div className="w-full container mx-auto max-w-7xl mt-12 space-y-6">
+        <div className="flex items-center justify-end">
           <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             افزودن دسته‌بندی جدید

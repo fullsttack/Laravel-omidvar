@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Key, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,15 +30,22 @@ export default function Create() {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.permissions.store'));
+        post(route('admin.permissions.store'), {
+            onSuccess: () => {
+                toast.success('عملیات موفق', { description: `مجوز "${data.name}" با موفقیت ایجاد شد` });
+            },
+            onError: () => {
+                toast.error('عملیات ناموفق', { description: 'خطا در ایجاد مجوز' });
+            }
+        });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="ایجاد مجوز جدید" />
             
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <Card className="max-w-2xl">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 mx-auto w-full">
+                <Card className="w-6/12 mx-auto mt-24">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Key className="h-5 w-5" />

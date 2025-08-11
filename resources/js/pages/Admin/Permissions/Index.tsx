@@ -7,6 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Search, Plus, Key, Shield, Edit, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -56,9 +57,16 @@ export default function Index({ permissions, filters }: Props) {
         });
     };
 
-    const deletePermission = (permissionId: number) => {
-        if (confirm('آیا مطمئن هستید که می‌خواهید این مجوز را حذف کنید?')) {
-            router.delete(route('admin.permissions.destroy', permissionId));
+    const deletePermission = (permissionId: number, permissionName: string) => {
+        if (confirm(`آیا مطمئن هستید که می‌خواهید مجوز "${permissionName}" را حذف کنید؟`)) {
+            router.delete(route('admin.permissions.destroy', permissionId), {
+                onSuccess: () => {
+                    toast.success('عملیات موفق', { description: `مجوز "${permissionName}" با موفقیت حذف شد` });
+                },
+                onError: () => {
+                    toast.error('عملیات ناموفق', { description: 'خطا در حذف مجوز' });
+                }
+            });
         }
     };
 
@@ -66,7 +74,7 @@ export default function Index({ permissions, filters }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="مدیریت مجوزها" />
             
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 max-w-7xl mx-auto w-full">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
@@ -104,12 +112,12 @@ export default function Index({ permissions, filters }: Props) {
 
                         {/* جدول */}
                         <div className="border rounded-lg">
-                            <Table>
+                            <Table className="text-right">
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>نام مجوز</TableHead>
-                                        <TableHead>استفاده در نقش‌ها</TableHead>
-                                        <TableHead className="text-left">عملیات</TableHead>
+                                        <TableHead className="text-right">نام مجوز</TableHead>
+                                        <TableHead className="text-right">استفاده در نقش‌ها</TableHead>
+                                        <TableHead className="text-right">عملیات</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -134,7 +142,7 @@ export default function Index({ permissions, filters }: Props) {
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-left">
+                                            <TableCell className="text-right">
                                                 <div className="flex gap-1">
                                                     <Button size="sm" variant="outline" asChild>
                                                         <Link href={route('admin.permissions.edit', permission.id)}>
@@ -144,7 +152,7 @@ export default function Index({ permissions, filters }: Props) {
                                                     <Button 
                                                         size="sm" 
                                                         variant="outline"
-                                                        onClick={() => deletePermission(permission.id)}
+                                                        onClick={() => deletePermission(permission.id, permission.name)}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>

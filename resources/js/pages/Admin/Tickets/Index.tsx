@@ -263,7 +263,7 @@ export default function Index({ tickets, stats, categories, priorities, filters 
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="مدیریت تیکت‌ها" />
 
-      <div className="container mx-auto mt-12 space-y-6">
+      <div className="w-full container mx-auto max-w-7xl mt-12 space-y-6">
 
         <Card>
           <CardContent className="p-6">

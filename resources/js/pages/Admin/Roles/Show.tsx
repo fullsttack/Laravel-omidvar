@@ -51,7 +51,7 @@ export default function Show({ role, allPermissions }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`جزئیات نقش: ${role.name}`} />
             
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 max-w-7xl mx-auto w-full">
                 <div className="grid gap-4 md:grid-cols-2">
                     {/* اطلاعات نقش */}
                     <Card>
@@ -134,12 +134,12 @@ export default function Show({ role, allPermissions }: Props) {
                     <CardContent>
                         {role.users.length > 0 ? (
                             <div className="border rounded-lg">
-                                <Table>
+                                <Table className="text-right">
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>نام</TableHead>
-                                            <TableHead>ایمیل</TableHead>
-                                            <TableHead className="text-left">عملیات</TableHead>
+                                            <TableHead className="text-right">نام</TableHead>
+                                            <TableHead className="text-right">ایمیل</TableHead>
+                                            <TableHead className="text-right">عملیات</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -147,7 +147,7 @@ export default function Show({ role, allPermissions }: Props) {
                                             <TableRow key={user.id}>
                                                 <TableCell className="font-medium">{user.name}</TableCell>
                                                 <TableCell>{user.email}</TableCell>
-                                                <TableCell className="text-left">
+                                                <TableCell className="text-right">
                                                     <Button size="sm" variant="outline" asChild>
                                                         <Link href={route('admin.users.show', user.id)}>
                                                             مشاهده

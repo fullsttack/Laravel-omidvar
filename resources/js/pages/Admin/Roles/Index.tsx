@@ -7,6 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Search, Plus, Shield, Users, Eye, Edit, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -57,9 +58,21 @@ export default function Index({ roles, filters }: Props) {
         });
     };
 
-    const deleteRole = (roleId: number) => {
-        if (confirm('آیا مطمئن هستید که می‌خواهید این نقش را حذف کنید?')) {
-            router.delete(route('admin.roles.destroy', roleId));
+    const deleteRole = (roleId: number, roleName: string, usersCount: number) => {
+        if (usersCount > 0) {
+            toast.error('غیر مجاز', { description: 'نمی‌توان نقشی را حذف کرد که کاربران آن را دارند.' });
+            return;
+        }
+        
+        if (confirm(`آیا مطمئن هستید که می‌خواهید نقش "${roleName}" را حذف کنید؟`)) {
+            router.delete(route('admin.roles.destroy', roleId), {
+                onSuccess: () => {
+                    toast.success('عملیات موفق', { description: `نقش "${roleName}" با موفقیت حذف شد` });
+                },
+                onError: () => {
+                    toast.error('عملیات ناموفق', { description: 'خطا در حذف نقش' });
+                }
+            });
         }
     };
 
@@ -67,7 +80,7 @@ export default function Index({ roles, filters }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="مدیریت نقش‌ها" />
             
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 max-w-7xl mx-auto w-full">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
@@ -105,13 +118,13 @@ export default function Index({ roles, filters }: Props) {
 
                         {/* جدول */}
                         <div className="border rounded-lg">
-                            <Table>
+                            <Table className="text-right">
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>نام نقش</TableHead>
-                                        <TableHead>تعداد کاربران</TableHead>
-                                        <TableHead>مجوزها</TableHead>
-                                        <TableHead className="text-left">عملیات</TableHead>
+                                        <TableHead className="text-right">نام نقش</TableHead>
+                                        <TableHead className="text-right">تعداد کاربران</TableHead>
+                                        <TableHead className="text-right">مجوزها</TableHead>
+                                        <TableHead className="text-right">عملیات</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -141,7 +154,7 @@ export default function Index({ roles, filters }: Props) {
                                                     )}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-left">
+                                            <TableCell className="text-right">
                                                 <div className="flex gap-1">
                                                     <Button size="sm" variant="outline" asChild>
                                                         <Link href={route('admin.roles.show', role.id)}>
@@ -157,7 +170,7 @@ export default function Index({ roles, filters }: Props) {
                                                         <Button 
                                                             size="sm" 
                                                             variant="outline"
-                                                            onClick={() => deleteRole(role.id)}
+                                                            onClick={() => deleteRole(role.id, role.name, role.users_count)}
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>

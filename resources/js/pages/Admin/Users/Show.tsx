@@ -7,6 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { User, Shield, Key, Plus, Minus } from 'lucide-react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -62,13 +63,26 @@ export default function Show({ user, allRoles, allPermissions }: Props) {
         if (!roleData.role) return;
         
         postRole(route('admin.users.assign-role', user.id), {
-            onSuccess: () => setRoleData('role', ''),
+            onSuccess: () => {
+                setRoleData('role', '');
+                toast.success('عملیات موفق', { description: `نقش ${roleData.role} به کاربر اختصاص یافت` });
+            },
+            onError: () => {
+                toast.error('عملیات ناموفق', { description: 'خطا در اختصاص نقش' });
+            }
         });
     };
 
     const removeRole = (roleName: string) => {
         router.post(route('admin.users.remove-role', user.id), {
             role: roleName,
+        }, {
+            onSuccess: () => {
+                toast.success('عملیات موفق', { description: `نقش ${roleName} از کاربر حذف شد` });
+            },
+            onError: () => {
+                toast.error('عملیات ناموفق', { description: 'خطا در حذف نقش' });
+            }
         });
     };
 
@@ -76,13 +90,26 @@ export default function Show({ user, allRoles, allPermissions }: Props) {
         if (!permissionData.permission) return;
         
         postPermission(route('admin.users.give-permission', user.id), {
-            onSuccess: () => setPermissionData('permission', ''),
+            onSuccess: () => {
+                setPermissionData('permission', '');
+                toast.success('عملیات موفق', { description: `مجوز ${permissionData.permission} به کاربر داده شد` });
+            },
+            onError: () => {
+                toast.error('عملیات ناموفق', { description: 'خطا در اعطای مجوز' });
+            }
         });
     };
 
     const revokePermission = (permissionName: string) => {
         router.post(route('admin.users.revoke-permission', user.id), {
             permission: permissionName,
+        }, {
+            onSuccess: () => {
+                toast.success('عملیات موفق', { description: `مجوز ${permissionName} از کاربر گرفته شد` });
+            },
+            onError: () => {
+                toast.error('عملیات ناموفق', { description: 'خطا در گرفتن مجوز' });
+            }
         });
     };
 
@@ -95,7 +122,7 @@ export default function Show({ user, allRoles, allPermissions }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`جزئیات کاربر: ${user.name}`} />
             
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 max-w-7xl mx-auto w-full">
                 <div className="grid gap-4 md:grid-cols-2">
                     {/* اطلاعات کاربر */}
                     <Card>

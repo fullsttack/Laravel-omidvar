@@ -38,35 +38,11 @@ class RoleAndPermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create permissions for user panel
-        $panelPermissions = [
-            'view panel',
-            'manage profile',
-            'view orders',
-            'view transactions',
-            'manage addresses',
-            'create comments',
-            'edit own comments',
-            'delete own comments',
-            'create tickets',
-            'view own tickets',
-            'reply to own tickets',
-        ];
-
-        foreach ($panelPermissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
-        }
-
-        // Create roles
+        // Create role
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $panelRole = Role::firstOrCreate(['name' => 'panel']);
 
-        // Assign permissions to admin role (admin has all permissions)
-        $allPermissions = Permission::all();
-        $adminRole->syncPermissions($allPermissions);
-
-        // Assign permissions to panel role (only user panel permissions)
-        $panelRole->syncPermissions($panelPermissions);
+        // Assign permissions to admin role (admin has all admin permissions)
+        $adminRole->syncPermissions($adminPermissions);
 
         // Create a default admin user if it doesn't exist
         $adminUser = User::firstOrCreate(
