@@ -67,7 +67,7 @@ export default function PanelSidebar() {
         },
         {
             name: 'تیکت‌ها',
-            href: route('panel.tickets'),
+            href: route('panel.tickets.index'),
             icon: Headphones,
             active: url === '/panel/tickets'
         }
@@ -118,7 +118,7 @@ export default function PanelSidebar() {
                     سوال یا مشکلی دارید؟ ما اینجا هستیم تا کمکتان کنیم
                 </p>
                 <Link
-                    href={route('panel.tickets')}
+                    href={route('panel.tickets.index')}
                     className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                    021-224455

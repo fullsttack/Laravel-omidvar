@@ -131,6 +131,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return Inertia::render('Admin/Dashboard');
         })->name('dashboard');
         
+        // User Management
+        Route::resource('users', App\Http\Controllers\Admin\UserController::class)->only(['index', 'show']);
+        Route::post('users/bulk-update', [App\Http\Controllers\Admin\UserController::class, 'bulkUpdate'])->name('users.bulk-update');
+        Route::post('users/{user}/assign-role', [App\Http\Controllers\Admin\UserController::class, 'assignRole'])->name('users.assign-role');
+        Route::post('users/{user}/remove-role', [App\Http\Controllers\Admin\UserController::class, 'removeRole'])->name('users.remove-role');
+        Route::post('users/{user}/give-permission', [App\Http\Controllers\Admin\UserController::class, 'givePermission'])->name('users.give-permission');
+        Route::post('users/{user}/revoke-permission', [App\Http\Controllers\Admin\UserController::class, 'revokePermission'])->name('users.revoke-permission');
+        
+        // Role Management
+        Route::resource('roles', App\Http\Controllers\Admin\RoleController::class);
+        
+        // Permission Management
+        Route::resource('permissions', App\Http\Controllers\Admin\PermissionController::class)->except(['show']);
+        
         Route::resource('comments', App\Http\Controllers\AdminCommentController::class);
         Route::post('comments/bulk-update', [App\Http\Controllers\AdminCommentController::class, 'bulkUpdate'])->name('comments.bulk-update');
         
@@ -151,8 +165,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders', [App\Http\Controllers\PanelController::class, 'orders'])->name('orders');
         Route::get('/transactions', [App\Http\Controllers\PanelController::class, 'transactions'])->name('transactions');
         Route::get('/lists', [App\Http\Controllers\PanelController::class, 'lists'])->name('lists');
-        Route::get('/tickets', [App\Http\Controllers\PanelController::class, 'tickets'])->name('tickets');
-        
         Route::resource('comments', App\Http\Controllers\CommentController::class);
         
         Route::resource('tickets', App\Http\Controllers\Panel\TicketController::class);

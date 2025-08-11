@@ -3,7 +3,7 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BellRing, BadgeDollarSign, Wallet, Heart, MapPinned, LayoutGrid, Settings, ShoppingBag, MessageCircle, LogOut, Ticket, Tags, Flag } from 'lucide-react';
+import { BellRing, BadgeDollarSign, Wallet, Heart, MapPinned, LayoutGrid, Settings, ShoppingBag, MessageCircle, LogOut, Ticket, Tags, Flag, Users, Shield, Key } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -11,6 +11,28 @@ const mainNavItems: NavItem[] = [
         title: 'داشبورد',
         href: '/admin',
         icon: LayoutGrid,
+    },
+    {
+        title: 'مدیریت کاربران',
+        href: '/admin/users',
+        icon: Users,
+    },
+    {
+        title: 'نقش‌ها و مجوزها',
+        href: '/admin/roles',
+        icon: Shield,
+        items: [
+            {
+                title: 'نقش‌ها',
+                href: '/admin/roles',
+                icon: Shield,
+            },
+            {
+                title: 'مجوزها',
+                href: '/admin/permissions',
+                icon: Key,
+            },
+        ],
     },
     {
         title: 'کامنت‌ها',
